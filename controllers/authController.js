@@ -2,7 +2,7 @@ const User = require("../models/userModel");
 const passport = require("passport");
 
 const registerHandler = (req, res) => {
-  const { username, isAdmin, password } = req.body;
+  const { username, password } = req.body;
 
   User.register({ username }, password, function (err, user) {
     if (err) {
@@ -30,7 +30,6 @@ const loginHandler = (req, res) => {
       passport.authenticate("local")(req, res, () => {
         return res.status(200).json({
           user: user.email,
-          isAdmin: user.isAdmin,
 
           status: "Login Successfully",
         });

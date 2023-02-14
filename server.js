@@ -2,7 +2,9 @@ const dotenv = require("dotenv").config();
 const express = require("express");
 const bodyParser = require("body-parser");
 const session = require("express-session");
+const cookieParser = require("cookie-parser");
 const passport = require("passport");
+const LocalStrategy = require("passport-local").Strategy;
 const cors = require("cors");
 const connectDB = require("./config/db");
 const Rest = require("./models/restModel");
@@ -24,6 +26,7 @@ app.use(
   })
 );
 app.use(bodyParser.json());
+app.use(cookieParser());
 
 app.use(
   session({
@@ -33,20 +36,20 @@ app.use(
   })
 );
 
-app.use(passport.initialize());
-app.use(passport.session());
-
 passport.use(User.createStrategy());
 
-passport.serializeUser(function (user, done) {
+passport.serializeUser((user, done) => {
   done(null, user.id);
 });
 
 passport.deserializeUser(function (id, done) {
-  User.findById(id, function (err, user) {
+  User.findById(id, (err, user) => {
     done(err, user);
   });
 });
+
+app.use(passport.initialize());
+app.use(passport.session());
 
 //Routes
 app.use("/auth", authRoute);
