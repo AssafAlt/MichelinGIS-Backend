@@ -1,5 +1,6 @@
 const Review = require("../models/reviewModel");
 const Rest = require("../models/restModel");
+const url = require("url");
 
 const reviewHandler = async (req, res) => {
   const { reviewerName, review, restId } = req.body;
@@ -9,7 +10,7 @@ const reviewHandler = async (req, res) => {
     restaurant: restId,
   });
   await newReview.save((err) => {
-    res.send(err);
+    return res.send(err);
   });
   const update = { reviewer_name: reviewerName, content: review };
   Rest.findOneAndUpdate(
@@ -18,16 +19,19 @@ const reviewHandler = async (req, res) => {
 
     function (err, foundRest) {
       if (err) {
-        res.json(err);
+        return res.json(err);
       }
     }
   );
 };
 
 const getReviewsByName = async (req, res) => {
-  const splittedName = req.body.splittedName;
-  const reviews = await Rest.find({ name: splittedName });
-  await res.status(200).json(reviews.reviews);
+  const queryObject = url.parse(req.url, true).query;
+  const restId = queryObject.restId;
+
+  const rest = await Rest.find({ _id: restId });
+  console.log(rest);
+  return await res.status(200).json(rest[0]?.reviews);
 };
 
 module.exports = { reviewHandler, getReviewsByName };
